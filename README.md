@@ -1,0 +1,2 @@
+# Manjaro-ZFS
+MANJARO NEW INSTALL COMMANDS [ZFS (Home, Manjaro), FAT32 (EFI)]
