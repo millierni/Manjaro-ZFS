@@ -396,3 +396,8 @@ References:\[ [manjaro-cli-install](https://forum.manjaro.org/t/howto-install-ma
   ```
   pacman -S --noconfirm bash-completion pv
   ```
+  
+- install desktop environment
+  ```
+  https://wiki.manjaro.org/index.php/Install_Desktop_Environments#Overview  
+  ```
