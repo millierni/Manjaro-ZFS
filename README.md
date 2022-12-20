@@ -51,9 +51,9 @@ References:\[ [manjaro-cli-install](https://forum.manjaro.org/t/howto-install-ma
   ```
 - create ZFS partitions for boot:
   ```
-  sgdisk -n2:0:+1G -t2:BF00 $DISK0
-  sgdisk -n2:0:+1G -t2:BF00 $DISK1
-  sgdisk -n2:0:+1G -t2:BF00 $DISK2
+  sgdisk -n2:0:+20G -t2:BF00 $DISK0
+  sgdisk -n2:0:+20G -t2:BF00 $DISK1
+  sgdisk -n2:0:+20G -t2:BF00 $DISK2
   sleep 1
   ```
 - create ZFS partitions for root:
