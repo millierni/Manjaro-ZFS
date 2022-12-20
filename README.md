@@ -319,7 +319,8 @@ References:\[ [manjaro-cli-install](https://forum.manjaro.org/t/howto-install-ma
 - sync the two EFI partitions:
   ```
   pacman -S --noconfirm rsync
-  rsync -Rai --stats --human-readable --delete --verbose --progress /efi0/./ /efi1/./ /efi2
+  rsync -Rai --stats --human-readable --delete --verbose --progress /efi0/./ /efi1
+  rsync -Rai --stats --human-readable --delete --verbose --progress /efi0/./ /efi2
   ```
 - do efibootmgr on disk2
   ```
