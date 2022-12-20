@@ -27,32 +27,38 @@ References:\[ [manjaro-cli-install](https://forum.manjaro.org/t/howto-install-ma
   lsmod | grep zfs      # see zfs module loaded
   zfs --version         # check version
   ```
-- Set `DISK1`, `DISK2` and `DISK3` variables and erase them
+- Set `DISK0`, `DISK1` and `DISK2` variables and erase them
   - `ls -lF /dev/disk/by-id` and set the UUID of your own hard disks
   ```
+  DISK0=/dev/disk/by-id/ata-VBOX_HARDDISK_VB0a4a9fa5-eb40797e # use your own
   DISK1=/dev/disk/by-id/ata-VBOX_HARDDISK_VB18c0305d-4e63e5c6 # use your own
   DISK2=/dev/disk/by-id/ata-VBOX_HARDDISK_VB0a4a9fa5-eb40797e # use your own
   
   pacman -S --noconfirm gptfdisk
+  sgdisk --zap-all $DISK0
   sgdisk --zap-all $DISK1
   sgdisk --zap-all $DISK2
   ```
 - create UEFI partition for booting:
   ```
+  sgdisk -n1:1M:+512M -t1:EF00 $DISK0
   sgdisk -n1:1M:+512M -t1:EF00 $DISK1
   sgdisk -n1:1M:+512M -t1:EF00 $DISK2
   udevadm settle; sleep 1
+  mkfs.fat -F 32 -n EFI ${DISK0}-part1
   mkfs.fat -F 32 -n EFI ${DISK1}-part1
   mkfs.fat -F 32 -n EFI ${DISK2}-part1
   ```
 - create ZFS partitions for boot:
   ```
+  sgdisk -n2:0:+1G -t2:BF00 $DISK0
   sgdisk -n2:0:+1G -t2:BF00 $DISK1
   sgdisk -n2:0:+1G -t2:BF00 $DISK2
   sleep 1
   ```
 - create ZFS partitions for root:
   ```
+  sgdisk -n3:0:0 -t3:BF00 $DISK0
   sgdisk -n3:0:0 -t3:BF00 $DISK1
   sgdisk -n3:0:0 -t3:BF00 $DISK2
   sleep 1
@@ -80,7 +86,7 @@ References:\[ [manjaro-cli-install](https://forum.manjaro.org/t/howto-install-ma
     -o feature@allocation_classes=enabled \
     -O acltype=posixacl -O canmount=off -O compression=lz4 -O devices=off \
     -O normalization=formD -O relatime=on -O xattr=sa \
-    -O mountpoint=none -R /mnt -f $BPOOL mirror ${DISK1}-part2 ${DISK2}-part2
+    -O mountpoint=none -R /mnt -f $BPOOL mirror ${DISK0}-part2 ${DISK1}-part2 ${DISK2}-part2
   ```
 - create root pool (use `ashift=13` for Samsung SSD):
   ```
@@ -89,7 +95,7 @@ References:\[ [manjaro-cli-install](https://forum.manjaro.org/t/howto-install-ma
     -O acltype=posixacl -O canmount=off -O compression=lz4 \
     -O dnodesize=auto -O normalization=formD -O relatime=on -O xattr=sa \
     -O mountpoint=none -R /mnt \
-    -f $RPOOL mirror ${DISK1}-part3 ${DISK2}-part3
+    -f $RPOOL mirror ${DISK0}-part3 ${DISK1}-part3 ${DISK2}-part3
   ```
 - create containers for $RPOOL and $BPOOL
   ```
@@ -137,7 +143,8 @@ References:\[ [manjaro-cli-install](https://forum.manjaro.org/t/howto-install-ma
   ```
 - make efi mount points and mount them:
   ```
-  mkdir -p /mnt/{efi1,efi2}
+  mkdir -p /mnt/{efi0,efi1,efi2}
+  mount -t vfat ${DISK0}-part1 /mnt/efi0
   mount -t vfat ${DISK1}-part1 /mnt/efi1
   mount -t vfat ${DISK2}-part1 /mnt/efi2
   ```
@@ -158,7 +165,7 @@ References:\[ [manjaro-cli-install](https://forum.manjaro.org/t/howto-install-ma
 >   ```
 - double check work:
   ```
-  findmnt | grep /mnt # shows /mnt, /mnt/home, /mnt/root, /mnt/var/cache/pacman, /mnt/boot, /mnt/efi1, /mnt/efi2 as mounted
+  findmnt | grep /mnt # shows /mnt, /mnt/home, /mnt/root, /mnt/var/cache/pacman, /mnt/boot, /mnt/efi0, /mnt/efi1, /mnt/efi2 as mounted
   ```
 - use `basestrap` to install base set of packages into `/mnt`
   ```
@@ -183,6 +190,7 @@ References:\[ [manjaro-cli-install](https://forum.manjaro.org/t/howto-install-ma
 - save the variables for use later (optional):
   ```
   cat > /mnt/root/vars.sh << EOF
+  DISK0=$DISK0
   DISK1=$DISK1
   DISK2=$DISK2
   RPOOL=$RPOOL
@@ -191,7 +199,7 @@ References:\[ [manjaro-cli-install](https://forum.manjaro.org/t/howto-install-ma
   ```
 - chroot into new installation:
   ```
-  manjaro-chroot /mnt /usr/bin/env DISK1=$DISK1 DISK2=$DISK2 RPOOL=$RPOOL BPOOL=$BPOOL /bin/bash
+  manjaro-chroot /mnt /usr/bin/env DISK0=$DISK0 DISK1=$DISK1 DISK2=$DISK2 RPOOL=$RPOOL BPOOL=$BPOOL /bin/bash
   ```
 - set timezone:
   ```
@@ -249,14 +257,17 @@ References:\[ [manjaro-cli-install](https://forum.manjaro.org/t/howto-install-ma
   ```
 > - generate mount points for EFI partitions:
 >  ```
+>  mkdir -p /efi0
 >  mkdir -p /efi1
 >  mkdir -p /efi2
 >  ```
-- add 2 EFI partitions to `/etc/fstab`
+- add 3 EFI partitions to `/etc/fstab`
   ```
   # comment everything on /etc/fstab
   sed -i -E 's/^([^#].*)$/# \1/g' /etc/fstab
   
+  echo PARTUUID=$(blkid -s PARTUUID -o value ${DISK0}-part1) \
+    /efi0 vfat nofail,x-systemd.device-timeout=1 0 1 >> /etc/fstab
   echo PARTUUID=$(blkid -s PARTUUID -o value ${DISK1}-part1) \
     /efi1 vfat nofail,x-systemd.device-timeout=1 0 1 >> /etc/fstab
   echo PARTUUID=$(blkid -s PARTUUID -o value ${DISK2}-part1) \
@@ -265,6 +276,7 @@ References:\[ [manjaro-cli-install](https://forum.manjaro.org/t/howto-install-ma
 - install grub
   ```
   pacman -S --noconfirm grub efibootmgr
+  # mount /efi0
   # mount /efi1
   # mount /efi2
   ```
