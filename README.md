@@ -106,7 +106,7 @@ References:\[ [manjaro-cli-install](https://forum.manjaro.org/t/howto-install-ma
   ```
   rm -rf /mnt
   mkdir -p /mnt
-  zfs create -o mountpoint=/     $RPOOL/ROOT/manjaro
+  zfs create -o mountpoint=/     $RPOOL/ROOT/os
   zfs create -o mountpoint=none  $RPOOL/data
   zfs create -o mountpoint=/home $RPOOL/data/home
   zfs create -o mountpoint=/root $RPOOL/data/home/root
@@ -120,7 +120,7 @@ References:\[ [manjaro-cli-install](https://forum.manjaro.org/t/howto-install-ma
   ```
   zfs unmount -a # unmount all zfs filesystems
   zfs set mountpoint=/boot $BPOOL/BOOT/default
-  zfs set mountpoint=/     $RPOOL/ROOT/manjaro
+  zfs set mountpoint=/     $RPOOL/ROOT/os
   zfs set mountpoint=/home $RPOOL/data/home
   zfs set mountpoint=/root $RPOOL/data/home/root
   zfs set mountpoint=/var/cache/pacman $RPOOL/data/paccache
@@ -152,8 +152,8 @@ References:\[ [manjaro-cli-install](https://forum.manjaro.org/t/howto-install-ma
 >   ```
 >   echo "# generated fstab
 >   # <file system>                <dir>              <type>    <options>                <dump> <pass>
->   $RPOOL/ROOT/manjaro/root         /                  zfs       defaults,noatime          0      0
->   $RPOOL/ROOT/manjaro/paccache     /var/cache/pacman  zfs       defaults,noatime          0      0
+>   $RPOOL/ROOT/os/root         /                  zfs       defaults,noatime          0      0
+>   $RPOOL/ROOT/os/paccache     /var/cache/pacman  zfs       defaults,noatime          0      0
 >   $RPOOL/data/home                 /home              zfs       defaults,noatime          0      0
 >   $RPOOL/data/home/root            /root              zfs       defaults,noatime          0      0" \
 >   > /etc/fstab
@@ -185,7 +185,7 @@ References:\[ [manjaro-cli-install](https://forum.manjaro.org/t/howto-install-ma
   ```
 > - since we mounted `/var/cache/pacman` and `/home` via ZFS (non-legacy), we need to remove these entries from the new `/mnt/etc/fstab`
 >   ```
->   sed -i -E 's/^('"$RPOOL"'\/data.*)$/#\1/g; s/^('"$RPOOL"'\/ROOT\/manjaro\/paccache.*)/#\1/g' /mnt/etc/fstab
+>   sed -i -E 's/^('"$RPOOL"'\/data.*)$/#\1/g; s/^('"$RPOOL"'\/ROOT\/os\/paccache.*)/#\1/g' /mnt/etc/fstab
 >   ```
 - save the variables for use later (optional):
   ```
