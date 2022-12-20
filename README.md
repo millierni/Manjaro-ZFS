@@ -86,7 +86,7 @@ References:\[ [manjaro-cli-install](https://forum.manjaro.org/t/howto-install-ma
     -o feature@allocation_classes=enabled \
     -O acltype=posixacl -O canmount=off -O compression=lz4 -O devices=off \
     -O normalization=formD -O relatime=on -O xattr=sa \
-    -O mountpoint=none -R /mnt -f $BPOOL mirror ${DISK0}-part2 ${DISK1}-part2 ${DISK2}-part2
+    -O mountpoint=none -R /mnt -f $BPOOL raidz1 ${DISK0}-part2 ${DISK1}-part2 ${DISK2}-part2
   ```
 - create root pool (use `ashift=13` for Samsung SSD):
   ```
@@ -95,7 +95,7 @@ References:\[ [manjaro-cli-install](https://forum.manjaro.org/t/howto-install-ma
     -O acltype=posixacl -O canmount=off -O compression=lz4 \
     -O dnodesize=auto -O normalization=formD -O relatime=on -O xattr=sa \
     -O mountpoint=none -R /mnt \
-    -f $RPOOL mirror ${DISK0}-part3 ${DISK1}-part3 ${DISK2}-part3
+    -f $RPOOL raidz1 ${DISK0}-part3 ${DISK1}-part3 ${DISK2}-part3
   ```
 - create containers for $RPOOL and $BPOOL
   ```
