@@ -323,6 +323,7 @@ References:\[ [manjaro-cli-install](https://forum.manjaro.org/t/howto-install-ma
   ```
 - do efibootmgr on disk2
   ```
+  efibootmgr -c -g -d $DISK1 -p 1 -L "GRUB-1" -l '\EFI\GRUB\grubx64.efi'
   efibootmgr -c -g -d $DISK2 -p 1 -L "GRUB-2" -l '\EFI\GRUB\grubx64.efi'
   ```
 - double check `/etc/grub/grub.cfg` according to [this](https://wiki.archlinux.org/index.php/Install_Arch_Linux_on_ZFS#Booting_your_kernel_and_initrd_from_ZFS
