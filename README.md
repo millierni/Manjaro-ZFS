@@ -314,12 +314,12 @@ References:\[ [manjaro-cli-install](https://forum.manjaro.org/t/howto-install-ma
 - run grub-mkconfig and install grub:
   ```
   ZPOOL_VDEV_NAME_PATH=1 grub-mkconfig -o /boot/grub/grub.cfg
-  ZPOOL_VDEV_NAME_PATH=1 grub-install --target=x86_64-efi --efi-directory=/efi1 --bootloader-id=GRUB
+  ZPOOL_VDEV_NAME_PATH=1 grub-install --target=x86_64-efi --efi-directory=/efi0 --bootloader-id=GRUB
   ```
 - sync the two EFI partitions:
   ```
   pacman -S --noconfirm rsync
-  rsync -Rai --stats --human-readable --delete --verbose --progress /efi1/./ /efi2
+  rsync -Rai --stats --human-readable --delete --verbose --progress /efi0/./ /efi1/./ /efi2
   ```
 - do efibootmgr on disk2
   ```
@@ -371,6 +371,7 @@ References:\[ [manjaro-cli-install](https://forum.manjaro.org/t/howto-install-ma
   ```
   cat > ~/vars.sh << EOF
   # installation environment
+  DISK0=$DISK0
   DISK1=$DISK1
   DISK2=$DISK2
   RPOOL=$RPOOL
